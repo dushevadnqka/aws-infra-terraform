@@ -19,7 +19,7 @@ resource "aws_iam_role" "lambda_s3_handler" {
 EOF
   managed_policy_arns = [
     aws_iam_policy.policy_one.arn,
-    # aws_iam_policy.policy_two.arn
+    aws_iam_policy.lambda_logging.arn
   ]
 }
 
@@ -43,4 +43,27 @@ resource "aws_iam_policy" "policy_one" {
       },
     ]
   })
+}
+
+resource "aws_iam_policy" "lambda_logging" {
+  name        = "lambda_logging"
+  path        = "/"
+  description = "IAM policy for logging from a lambda"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*",
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
 }

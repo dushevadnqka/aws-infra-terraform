@@ -1,20 +1,34 @@
+data "archive_file" "lambda_zip_dir" {
+  type        = "zip"
+  output_path = "lambdas/packages/lambda_function.zip"
+	source_dir  = "./src/s3_lambda"
+}
+
 resource "aws_lambda_function" "reify_s3_lambda" {
-  filename      = "lambda_function_s3_lambda.zip"
-  function_name = "reify-s3-lambda"
+  filename         = "${data.archive_file.lambda_zip_dir.output_path}"
+  source_code_hash = "${data.archive_file.lambda_zip_dir.output_base64sha256}"
+
+  function_name = var.lambda_function_name
   role          = var.lambda_role_arn
   handler       = "index.lambda_handler"
-
-  # The filebase64sha256() function is available in Terraform 0.11.12 and later
-  # For Terraform 0.11.11 and earlier, use the base64sha256() function and the file() function:
-  # source_code_hash = "${base64sha256(file("lambda_function_payload.zip"))}"
-  source_code_hash = filebase64sha256("lambda_function_s3_lambda.zip")
 
   runtime       = "python3.8"
 
   environment {
     variables = {
-      S3_BUCKET_ARN = module.iam_module.lambda_role_arn
-      IAM_ROLE_ARN  = module.s3_module.main_bucket_arn
+      S3_BUCKET_ARN = var.main_bucket_arn
+      IAM_ROLE_ARN  = var.lambda_role_arn
     }
   }
+
+  depends_on = [
+    aws_cloudwatch_log_group.lambda_log_group,
+  ]
+
+  layers = [var.reify_shared_lambda_layer]
+}
+
+resource "aws_cloudwatch_log_group" "lambda_log_group" {
+  name              = "/aws/lambda/${var.lambda_function_name}"
+  retention_in_days = 1
 }
