@@ -1,6 +1,6 @@
 data "archive_file" "lambda_zip_dir" {
   type        = "zip"
-  output_path = "lambda/packages/lambda_function.zip"
+  output_path = "lambdas/packages/lambda_function.zip"
 	source_dir  = "./src/s3_lambda"
 }
 

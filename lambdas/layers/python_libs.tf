@@ -1,6 +1,6 @@
 data "archive_file" "lambda_layer_zip_dir" {
   type        = "zip"
-  output_path = "lambda/packages/reify_python_lib.zip"
+  output_path = "lambdas/packages/reify_python_lib.zip"
 	source_dir  = "./src/layers"
 }
 
