@@ -1,7 +1,7 @@
 data "archive_file" "lambda_layer_zip_dir" {
   type        = "zip"
-  output_path = "/tmp/lambda_layer_zip_dir.zip"
-	source_dir  = "./src/lambda_layer_1"
+  output_path = "lambda/packages/reify_python_lib.zip"
+	source_dir  = "./src/layers"
 }
 
 resource "aws_lambda_layer_version" "reify_shared_lambda" {
